@@ -1,3 +1,9 @@
+const LitElement = Object.getPrototypeOf(
+  customElements.get("ha-panel-lovelace")
+);
+const html = LitElement.prototype.html;
+const css = LitElement.prototype.css;
+
 function renderNotFoundStyles() {
   return html`
     <style is="custom-style">
