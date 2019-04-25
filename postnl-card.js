@@ -262,7 +262,6 @@ class PostNL extends LitElement {
   renderShipment(shipment) {
     if (shipment.planned_date == null) {
       var delivery_date = (new Date(shipment.delivery_date)).toLocaleDateString((navigator.language) ? navigator.language : navigator.userLanguage)
-      return
     } else {
       var delivery_date = 
         (new Date(shipment.planned_date)).toLocaleDateString((navigator.language) ? navigator.language : navigator.userLanguage) + " " +
