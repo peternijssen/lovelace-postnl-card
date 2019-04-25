@@ -1,7 +1,5 @@
 # Lovelace PostNL
-Unofficial Home Assistant Lovelace card for PostNL.
-
-The card is not compatible with the current implementation. It requires a custom component for now, which will be shared as soon as 0.92 of HA is released.
+Home Assistant Lovelace card for PostNL.
 
 ## Warning!
 This card is not compatible with the current Home Assistant component. Please read this topic:
