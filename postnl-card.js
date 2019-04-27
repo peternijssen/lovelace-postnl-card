@@ -5,7 +5,7 @@ const html = LitElement.prototype.html;
 const css = LitElement.prototype.css;
 
 const DEFAULT_HIDE = {
-  delivered: true,
+  delivered: false,
 }
 
 function renderNotFoundStyles() {
