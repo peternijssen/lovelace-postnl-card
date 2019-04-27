@@ -18,9 +18,21 @@ Example usage:
 ```
 cards:
   - type: "custom:postnl-card"
-    packages: sensor.postnl_packages
+    delivery: sensor.postnl_delivery
+    distribution: sensor.postnl_distribution
     letters: sensor.postnl_letters
+    hide:
+      delivered: false
  ```
+
+## Available configuration options
+- `delivery` _string_: The delivery sensor. Don't add this if you are not interested in package deliveries
+- `distribution` _string_: The distribution sensor.  Don't add this if you are not interested in package distribution
+- `letters` _string_: The letters sensor.  Don't add this if you are not interested in letters
+- `name` _string_: Override the card name. By default shows "PostNL"
+- `icon` _string_: Icon next to the card name. By default shows "mdi:mailbox"
+- `hide` _object_: Control specifically information fields to show.
+  - `delivered`: _bool_ (Default to `false`) Controls if you want to show packages that are delivered already
 
 ## Inspired by
 * [simple-thermostat](https://github.com/nervetattoo/simple-thermostat)
