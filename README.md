@@ -25,6 +25,7 @@ cards:
     letters: sensor.postnl_letters
     hide:
       delivered: false
+      first_letter: false
  ```
 
 ## Available configuration options
@@ -35,6 +36,7 @@ cards:
 - `icon` _string_: Icon next to the card name. By default shows "mdi:mailbox"
 - `hide` _object_: Control specifically information fields to show.
   - `delivered`: _bool_ (Default to `false`) Controls if you want to show packages that are delivered already
+  - `first_letter`: _bool_ (Default to `false`) Controls if  you want to show the image of the very first letter
 
 ## Inspired by
 * [simple-thermostat](https://github.com/nervetattoo/simple-thermostat)

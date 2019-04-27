@@ -6,6 +6,7 @@ const css = LitElement.prototype.css;
 
 const DEFAULT_HIDE = {
   delivered: false,
+  first_letter: false,
 }
 
 function renderNotFoundStyles() {
@@ -40,7 +41,8 @@ function renderStyles() {
         padding: 16px 0;
       }
       .info-body,
-      .detail-body {
+      .detail-body,
+      .img-body {
         display: flex;
         flex-direction: row;
         justify-content: space-around;
@@ -50,12 +52,9 @@ function renderStyles() {
         text-align: center;
       }
       .detail-body table {
+        padding: 0px 16px;
         width: 100%;
       }
-      .detail-body table {
-        padding: 0px 16px;
-      }
-
       .detail-body td {
         padding: 2px;
       }
@@ -72,6 +71,20 @@ function renderStyles() {
         color: var(--primary-text-color);
         text-decoration-line: none;
         font-weight: normal;
+      }
+      .img-body img {
+        padding: 5px;
+        background: repeating-linear-gradient(
+          45deg,
+          #B45859,
+          #B45859 10px,
+          #FFFFFF 10px,
+          #FFFFFF 20px,
+          #122F94 20px,
+          #122F94 30px,
+          #FFFFFF 30px,
+          #FFFFFF 40px
+        );
       }
 
       header {
@@ -213,7 +226,7 @@ class PostNL extends LitElement {
     `
   }
 
-  renderLetters(detail = false) {
+  renderLetters() {
     if (!this.letters || (this.letters && this.letters.state === "0")) return ''
 
     return html`
@@ -221,6 +234,7 @@ class PostNL extends LitElement {
         <ha-icon class="header__icon" icon="mdi:email"></ha-icon>
         <h2 class="header__title">Letters</h2>
       </header>
+      ${this.renderSingleLetter()}
       <section class="detail-body">
         <table>
           <thead>
@@ -246,6 +260,16 @@ class PostNL extends LitElement {
     `
   }
 
+  renderSingleLetter() {
+    if (this._hide.first_letter) return ''
+
+    return html`
+      <section class="img-body">
+        <img src="${this.letters.attributes.letters[0].image}&width=400&height=300" />
+      </section>
+    `
+  }
+
   renderDeliveryInfo() {
     if (!this.delivery) return ''
 
@@ -256,7 +280,7 @@ class PostNL extends LitElement {
       </div>
       <div class="info">
         <ha-icon icon="mdi:package-variant"></ha-icon><br />
-        <span>${Object.keys(this.delivery.attributes.delivered).length} delivered</span>
+        <span>${this.delivery.attributes.delivered.length} delivered</span>
       </div>
     `
   }
@@ -272,7 +296,7 @@ class PostNL extends LitElement {
       </div>
       <div class="info">
         <ha-icon icon="mdi:package-variant"></ha-icon><br />
-        <span>${Object.keys(this.distribution.attributes.delivered).length} delivered</span>
+        <span>${this.distribution.attributes.delivered.length} delivered</span>
       </div>
     `
   }
