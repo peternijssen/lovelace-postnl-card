@@ -4,6 +4,10 @@ const LitElement = Object.getPrototypeOf(
 const html = LitElement.prototype.html;
 const css = LitElement.prototype.css;
 
+const DEFAULT_HIDE = {
+  delivered: true,
+}
+
 function renderNotFoundStyles() {
   return html`
     <style is="custom-style">
@@ -105,15 +109,22 @@ function renderStyles() {
   `
 }
 
+function isToday(dateParameter) {
+        var today = new Date();
+        return dateParameter.getDate() === today.getDate() && dateParameter.getMonth() === today.getMonth() && dateParameter.getFullYear() === today.getFullYear();
+}
+
 class PostNL extends LitElement {
   static get properties() {
     return {
       _hass: Object,
       config: Object,
-      packages: Object,
+      delivery: Object,
+      distribution: Object,
       letters: Object,
       icon: String,
       name: String,
+      _hide: Object,
     }
   }
 
@@ -121,21 +132,31 @@ class PostNL extends LitElement {
     super()
 
     this._hass = null
-    this.packageEntity = null
-    this.letterEntity = null
+    this.delivery = null
+    this.distribution = null
+    this.letters = null
     this.icon = null
+    this._hide = DEFAULT_HIDE
     this._haVersion = null
   }
 
   set hass(hass) {
     this._hass = hass
 
-    if (this.config.packages) {
-      this.packageEntity = hass.states[this.config.packages]
+    if (this.config.delivery) {
+      this.delivery = hass.states[this.config.delivery]
+    }
+
+    if (this.config.distribution) {
+      this.distribution = hass.states[this.config.distribution]
     }
 
     if (this.config.letters) {
-      this.letterEntity = hass.states[this.config.letters]
+      this.letters = hass.states[this.config.letters]
+    }
+
+    if (this.config.hide) {
+      this._hide = { ...this._hide, ...this.config.hide }
     }
 
     if (typeof this.config.name === 'string') {
@@ -151,12 +172,12 @@ class PostNL extends LitElement {
     }
   }
 
-  render({ _hass, _hide, _values, config, packageEntity, letterEntity  } = this) {
-    if (!packageEntity && !letterEntity) {
+  render({ _hass, _hide, _values, config, delivery, distribution, letters  } = this) {
+    if (!delivery && !distribution && !letters) {
       return html`
         ${renderNotFoundStyles()}
         <ha-card class="not-found">
-          Entity not available: <strong class="name">${config.packages}</strong> or <strong>${config.letters}</strong>
+          Entity not available: <strong class="name">${config.delivery}</strong> or <strong class="name">${config.distribution}</strong> or <strong>${config.letters}</strong>
         </ha-card>
       `
     }
@@ -170,43 +191,30 @@ class PostNL extends LitElement {
       </header>
         <section class="info-body">
           ${this.renderLettersInfo()}
-          ${this.renderPackagesInfo()}
+          ${this.renderDeliveryInfo()}
+          ${this.renderDistributionInfo()}
         </section>
 
       ${this.renderLetters()}
-      ${this.renderPackages()}
+      ${this.renderDelivery()}
+      ${this.renderDistribution()}
       </ha-card>
     `
   }
 
   renderLettersInfo() {
-    if (!this.letterEntity) return ''
+    if (!this.letters) return ''
 
     return html`
       <div class="info">
         <ha-icon icon="mdi:email"></ha-icon><br />
-        <span>${this.letterEntity.state} letters</span>
-      </div>
-    `
-  }
-
-  renderPackagesInfo() {
-    if (!this.packageEntity) return ''
-
-    return html`
-      <div class="info">
-        <ha-icon icon="mdi:truck-delivery"></ha-icon><br />
-        <span>${this.packageEntity.state} packages today</span>
-      </div>
-      <div class="info">
-        <ha-icon icon="mdi:package-variant"></ha-icon><br />
-        <span>${this.packageEntity.state} packages</span>
+        <span>${this.letters.state} letters</span>
       </div>
     `
   }
 
   renderLetters(detail = false) {
-    if (!this.letterEntity || (this.letterEntity && this.letterEntity.state === "0")) return ''
+    if (!this.letters || (this.letters && this.letters.state === "0")) return ''
 
     return html`
       <header>
@@ -223,11 +231,11 @@ class PostNL extends LitElement {
             </tr>
           </thead>
           <tbody>
-            ${Object.entries(this.letterEntity.attributes.letters).map(([key, letter]) => {
+            ${Object.entries(this.letters.attributes.letters).sort((a, b) => new Date(b[1].delivery_date) - new Date(a[1].delivery_date)).map(([key, letter]) => {
               return html`
                   <tr>
                     <td class="name"><a href="${letter.image}" target="_blank">${letter.id}</a></td>
-                    <td>${letter.status_message}</td>
+                    <td>${(letter.status_message != "") ? letter.status_message : "Unknown"}</td>
                     <td>${(new Date(letter.delivery_date)).toLocaleDateString((navigator.language) ? navigator.language : navigator.userLanguage)}</td>
                   </tr>
               `
@@ -238,13 +246,47 @@ class PostNL extends LitElement {
     `
   }
 
-  renderPackages() {
-    if (!this.packageEntity || (this.packageEntity && this.packageEntity.state === "0")) return ''
+  renderDeliveryInfo() {
+    if (!this.delivery) return ''
+
+    return html`
+      <div class="info">
+        <ha-icon icon="mdi:truck-delivery"></ha-icon><br />
+        <span>${this.delivery.state} enroute</span>
+      </div>
+      <div class="info">
+        <ha-icon icon="mdi:package-variant"></ha-icon><br />
+        <span>${Object.keys(this.delivery.attributes.delivered).length} delivered</span>
+      </div>
+    `
+  }
+
+
+  renderDistributionInfo() {
+    if (!this.distribution) return ''
+
+    return html`
+      <div class="info">
+        <ha-icon icon="mdi:truck-delivery"></ha-icon><br />
+        <span>${this.distribution.state} enroute</span>
+      </div>
+      <div class="info">
+        <ha-icon icon="mdi:package-variant"></ha-icon><br />
+        <span>${Object.keys(this.distribution.attributes.delivered).length} delivered</span>
+      </div>
+    `
+  }
+
+  renderDelivery() {
+    if (!this.delivery) return ''
+
+    // Nothing enroute and delivery disabled
+    if (this.delivery.state === "0" && this._hide.delivered) return ''
 
     return html`
       <header>
         <ha-icon class="header__icon" icon="mdi:package-variant"></ha-icon>
-        <h2 class="header__title">Packages</h2>
+        <h2 class="header__title">Delivery</h2>
       </header>
       <section class="detail-body">
         <table>
@@ -256,7 +298,47 @@ class PostNL extends LitElement {
             </tr>
           </thead>
           <tbody>
-            ${Object.entries(this.packageEntity.attributes.shipments).map(([key, shipment]) => {
+            ${Object.entries(this.delivery.attributes.enroute).sort((a, b) => new Date(b[1].planned_date) - new Date(a[1].planned_date)).map(([key, shipment]) => {
+              return this.renderShipment(shipment)
+            })}
+
+            ${this._hide.delivered ? "" : Object.entries(this.delivery.attributes.delivered).sort((a, b) => new Date(b[1].delivery_date) - new Date(a[1].delivery_date)).map(([key, shipment]) => {
+              return this.renderShipment(shipment)
+            })}
+          </tbody>
+        </table>
+      </section>
+    `
+  }
+
+
+  renderDistribution() {
+    // Distribution disabled
+    if (!this.distribution ) return ''
+
+    // Nothing enroute and delivery disabled
+    if (this.distribution.state === "0" && this._hide.delivered) return ''
+
+    return html`
+      <header>
+        <ha-icon class="header__icon" icon="mdi:package-variant"></ha-icon>
+        <h2 class="header__title">Distribution</h2>
+      </header>
+      <section class="detail-body">
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Status</th>
+              <th>Delivery date</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${Object.entries(this.distribution.attributes.enroute).sort((a, b) => new Date(b[1].planned_date) - new Date(a[1].planned_date)).map(([key, shipment]) => {
+              return this.renderShipment(shipment)
+            })}
+
+            ${this._hide.delivered ? "" : Object.entries(this.distribution.attributes.delivered).sort((a, b) => new Date(b[1].delivery_date) - new Date(a[1].delivery_date)).map(([key, shipment]) => {
               return this.renderShipment(shipment)
             })}
           </tbody>
@@ -266,9 +348,11 @@ class PostNL extends LitElement {
   }
 
   renderShipment(shipment) {
-    if (shipment.planned_date == null) {
+    var delivery_date = "Unknown"
+
+    if (shipment.delivery_date != null) {
       var delivery_date = (new Date(shipment.delivery_date)).toLocaleDateString((navigator.language) ? navigator.language : navigator.userLanguage)
-    } else {
+    } else if (shipment.planned_date != null) {
       var delivery_date = 
         (new Date(shipment.planned_date)).toLocaleDateString((navigator.language) ? navigator.language : navigator.userLanguage) + " " +
         (new Date(shipment.planned_to)).toLocaleTimeString((navigator.language) ? navigator.language : navigator.userLanguage) + " - " +
@@ -285,7 +369,7 @@ class PostNL extends LitElement {
   }
 
   setConfig(config) {
-    if (!config.packages && !config.letters) {
+    if (!config.delivery && !config.distribution && !config.letters) {
       throw new Error('Please define entities');
     }
     
