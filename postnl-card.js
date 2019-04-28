@@ -51,6 +51,10 @@ function renderStyles() {
       .info {
         text-align: center;
       }
+
+      .info__icon {
+        color: var(--paper-item-icon-color, #44739e);
+      }
       .detail-body table {
         padding: 0px 16px;
         width: 100%;
@@ -71,6 +75,9 @@ function renderStyles() {
         color: var(--primary-text-color);
         text-decoration-line: none;
         font-weight: normal;
+      }
+      .img-body {
+        margin-bottom: 10px;
       }
       .img-body img {
         padding: 5px;
@@ -220,7 +227,7 @@ class PostNL extends LitElement {
 
     return html`
       <div class="info">
-        <ha-icon icon="mdi:email"></ha-icon><br />
+        <ha-icon class="info__icon" icon="mdi:email"></ha-icon><br />
         <span>${this.letters.state} letters</span>
       </div>
     `
@@ -249,7 +256,7 @@ class PostNL extends LitElement {
               return html`
                   <tr>
                     <td class="name"><a href="${letter.image}" target="_blank">${letter.id}</a></td>
-                    <td>${(letter.status_message != "") ? letter.status_message : "Unknown"}</td>
+                    <td>${(letter.status_message != null) ? letter.status_message : "Unknown"}</td>
                     <td>${(new Date(letter.delivery_date)).toLocaleDateString((navigator.language) ? navigator.language : navigator.userLanguage)}</td>
                   </tr>
               `
@@ -275,11 +282,11 @@ class PostNL extends LitElement {
 
     return html`
       <div class="info">
-        <ha-icon icon="mdi:truck-delivery"></ha-icon><br />
+        <ha-icon class="info__icon" icon="mdi:truck-delivery"></ha-icon><br />
         <span>${this.delivery.state} enroute</span>
       </div>
       <div class="info">
-        <ha-icon icon="mdi:package-variant"></ha-icon><br />
+        <ha-icon class="info__icon" icon="mdi:package-variant"></ha-icon><br />
         <span>${this.delivery.attributes.delivered.length} delivered</span>
       </div>
     `
@@ -291,11 +298,11 @@ class PostNL extends LitElement {
 
     return html`
       <div class="info">
-        <ha-icon icon="mdi:truck-delivery"></ha-icon><br />
+        <ha-icon class="info__icon" icon="mdi:truck-delivery"></ha-icon><br />
         <span>${this.distribution.state} enroute</span>
       </div>
       <div class="info">
-        <ha-icon icon="mdi:package-variant"></ha-icon><br />
+        <ha-icon class="info__icon" icon="mdi:package-variant"></ha-icon><br />
         <span>${this.distribution.attributes.delivered.length} delivered</span>
       </div>
     `
@@ -379,8 +386,8 @@ class PostNL extends LitElement {
     } else if (shipment.planned_date != null) {
       var delivery_date = 
         (new Date(shipment.planned_date)).toLocaleDateString((navigator.language) ? navigator.language : navigator.userLanguage) + " " +
-        (new Date(shipment.planned_to)).toLocaleTimeString((navigator.language) ? navigator.language : navigator.userLanguage) + " - " +
-        (new Date(shipment.planned_from)).toLocaleTimeString((navigator.language) ? navigator.language : navigator.userLanguage)
+        (new Date(shipment.planned_from)).toLocaleTimeString((navigator.language) ? navigator.language : navigator.userLanguage) + " - " +
+        (new Date(shipment.planned_to)).toLocaleTimeString((navigator.language) ? navigator.language : navigator.userLanguage)
     }
 
     return html`
