@@ -241,7 +241,7 @@ class PostNL extends LitElement {
         <ha-icon class="header__icon" icon="mdi:email"></ha-icon>
         <h2 class="header__title">Letters</h2>
       </header>
-      ${this.renderSingleLetter()}
+      ${this.renderLetterImage()}
       <section class="detail-body">
         <table>
           <thead>
@@ -253,13 +253,7 @@ class PostNL extends LitElement {
           </thead>
           <tbody>
             ${Object.entries(this.letters.attributes.letters).sort((a, b) => new Date(b[1].delivery_date) - new Date(a[1].delivery_date)).map(([key, letter]) => {
-              return html`
-                  <tr>
-                    <td class="name"><a href="${letter.image}" target="_blank">${letter.id}</a></td>
-                    <td>${(letter.status_message != null) ? letter.status_message : "Unknown"}</td>
-                    <td>${(new Date(letter.delivery_date)).toLocaleDateString((navigator.language) ? navigator.language : navigator.userLanguage)}</td>
-                  </tr>
-              `
+                return this.renderLetter(letter)
             })}
           </tbody>
         </table>
@@ -267,14 +261,36 @@ class PostNL extends LitElement {
     `
   }
 
-  renderSingleLetter() {
+  renderLetterImage() {
     if (this._hide.first_letter) return ''
+
+    if (this.letters.attributes.letters[0].image == null) return ''
 
     return html`
       <section class="img-body">
         <img src="${this.letters.attributes.letters[0].image}&width=400&height=300" />
       </section>
     `
+  }
+
+  renderLetter(letter) {
+    if (letter.image == null) {
+      return html`
+        <tr>
+          <td class="name">${letter.id}</td>
+          <td>${(letter.status_message != null) ? letter.status_message : "Unknown"}</td>
+          <td>${(new Date(letter.delivery_date)).toLocaleDateString((navigator.language) ? navigator.language : navigator.userLanguage)}</td>
+        </tr>
+      `
+    } else {
+      return html`
+        <tr>
+          <td class="name"><a href="${letter.image}" target="_blank">${letter.id}</a></td>
+          <td>${(letter.status_message != null) ? letter.status_message : "Unknown"}</td>
+          <td>${(new Date(letter.delivery_date)).toLocaleDateString((navigator.language) ? navigator.language : navigator.userLanguage)}</td>
+        </tr>
+      `    
+    }
   }
 
   renderDeliveryInfo() {
@@ -341,7 +357,6 @@ class PostNL extends LitElement {
       </section>
     `
   }
-
 
   renderDistribution() {
     // Distribution disabled
