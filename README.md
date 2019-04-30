@@ -21,7 +21,14 @@ resources:
 ### Installation and tracking with `custom updater` _(Recommended)_
 
 1. Make sure you've the [custom_updater](https://github.com/custom-components/custom_updater) component installed and working.
-2. Configure Lovelace to load the card:.
+2. Add a new reference under `card_urls` in your `custom_updater` configuration in `configuration.yaml`.
+
+  ```yaml
+  custom_updater:
+    card_urls:
+      - https://raw.githubusercontent.com/peternijssen/lovelace-postnl/master/tracker.json
+  ```
+3. Configure Lovelace to load the card:
 
 ```yaml
 resources:
@@ -29,8 +36,8 @@ resources:
     type: module
 ```
 
-3. Run the service `custom_updater.check_all` or click the "CHECK" button if you use the tracker-card.
-4. Refresh the website.
+4. Run the service `custom_updater.check_all` or click the "CHECK" button if you use the tracker-card.
+5. Refresh the website.
 
 ## Example usage
 ```
