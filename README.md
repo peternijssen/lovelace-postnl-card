@@ -9,14 +9,30 @@ https://community.home-assistant.io/t/lovelace-postnl/112433
 
 ## Installation
 
-Configure Lovelace to load the card:
+1. Download the `lovelace-postnl.js` from the [latest release](https://github.com/peternijssen/lovelace-postnl/releases/latest) and store it in your `configuration/www` folder.
+2. Configure Lovelace to load the card:
+
 ```
 resources:
   - url: /local/postnl-card.js
     type: module
  ```
 
-Example usage:
+### Installation and tracking with `custom updater` _(Recommended)_
+
+1. Make sure you've the [custom_updater](https://github.com/custom-components/custom_updater) component installed and working.
+2. Configure Lovelace to load the card:.
+
+```yaml
+resources:
+  - url: /customcards/postnl-card.js
+    type: module
+```
+
+3. Run the service `custom_updater.check_all` or click the "CHECK" button if you use the tracker-card.
+4. Refresh the website.
+
+## Example usage
 ```
 cards:
   - type: "custom:postnl-card"
