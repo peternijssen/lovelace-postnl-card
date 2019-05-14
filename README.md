@@ -32,6 +32,8 @@ resources:
 
 ```yaml
 resources:
+  - url: https://unpkg.com/moment@2.24.0/moment.js
+    type: js
   - url: /customcards/postnl-card.js
     type: module
 ```
@@ -49,17 +51,33 @@ cards:
     hide:
       delivered: false
       first_letter: false
+      header: false
+    date_format: "DD MMM YYYY"
+    time_format: "HH:mm"
+    past_days: 1
  ```
 
 ## Available configuration options
-- `delivery` _string_: The delivery sensor. Don't add this if you are not interested in package deliveries
-- `distribution` _string_: The distribution sensor.  Don't add this if you are not interested in package distribution
-- `letters` _string_: The letters sensor.  Don't add this if you are not interested in letters
-- `name` _string_: Override the card name. By default shows "PostNL"
-- `icon` _string_: Icon next to the card name. By default shows "mdi:mailbox"
-- `hide` _object_: Control specifically information fields to show.
-  - `delivered`: _bool_ (Default to `false`) Controls if you want to show packages that are delivered already
-  - `first_letter`: _bool_ (Default to `false`) Controls if  you want to show the image of the very first letter
+| Name | Type | Default | Since | Description |
+|------|------|---------|-------|-------------|
+| delivery | string | - | v0.8 | The delivery sensor. Don't add this if you are not interested in package deliveries |
+| distribution | string | - | v0.8 | The distribution sensor.  Don't add this if you are not interested in package distribution |
+| letters | string | - | v0.8 | The letters sensor.  Don't add this if you are not interested in letters |
+| name | string | PostNL | v0.8 | Override the card name |
+| icon | string | mdi:mailbox | v0.8 | Icon next to the card name |
+| hide | object | object | v0.8 | Control specifically information fields to show. |
+| date_format | string | DD MMM YYYY | v0.9 | Overrides the default date format. (Requires MomentJS) |
+| time_format | string | HH:mm | v0.9 | Overrides the default time format. (Requires MomentJS) | 
+| past_days |integer | 1 | v0.9 | Defines how many days you want to see from the past. (Requires MomentJS) |
+
+
+## Hide object
+| Name | Type | Default | Since | Description |
+|------|------|---------|-------|-------------|
+| delivered | bool | false | v0.8 |  Controls if you want to show packages that are delivered already |
+| first_letter | bool | false | v0.8 |  Controls if  you want to show the image of the very first letter |
+| header | bool | false | v0.9 |  Controls if it displays the top most header |
+
 
 ## Inspired by
 * [simple-thermostat](https://github.com/nervetattoo/simple-thermostat)

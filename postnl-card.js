@@ -1,4 +1,4 @@
-const LitElement = Object.getPrototypeOf(
+  const LitElement = Object.getPrototypeOf(
   customElements.get("ha-panel-lovelace")
 );
 const html = LitElement.prototype.html;
@@ -7,6 +7,7 @@ const css = LitElement.prototype.css;
 const DEFAULT_HIDE = {
   delivered: false,
   first_letter: false,
+  header: false,
 }
 
 function renderNotFoundStyles() {
@@ -144,6 +145,10 @@ class PostNL extends LitElement {
       letters: Object,
       icon: String,
       name: String,
+      date_format: String,
+      time_format: String,
+      past_days: String,
+      _language: String,
       _hide: Object,
     }
   }
@@ -156,8 +161,12 @@ class PostNL extends LitElement {
     this.distribution = null
     this.letters = null
     this.icon = null
+    this.name = null
+    this.date_format = null
+    this.time_format = null
+    this.past_days = null
+    this._language = null
     this._hide = DEFAULT_HIDE
-    this._haVersion = null
   }
 
   set hass(hass) {
@@ -190,6 +199,26 @@ class PostNL extends LitElement {
     } else {
       this.icon = "mdi:mailbox"
     }
+
+    if (this.config.date_format) {
+      this.date_format = this.config.date_format
+    } else {
+      this.date_format = "DD MMM YYYY";
+    }
+
+    if (this.config.time_format) {
+      this.time_format = this.config.time_format
+    } else {
+      this.time_format = "HH:mm";
+    }
+
+    if (this.config.past_days) {
+      this.past_days = parseInt(this.config.past_days)
+    } else {
+      this.past_days = 1;
+    }
+
+    this._language = hass.language
   }
 
   render({ _hass, _hide, _values, config, delivery, distribution, letters  } = this) {
@@ -205,10 +234,7 @@ class PostNL extends LitElement {
     return html`
       ${renderStyles()}
       <ha-card class="postnl-card">
-      <header>
-        <ha-icon class="header__icon" .icon=${this.icon}></ha-icon>
-        <h2 class="header__title">${this.name}</h2>
-      </header>
+        ${this.renderHeader()}
         <section class="info-body">
           ${this.renderLettersInfo()}
           ${this.renderDeliveryInfo()}
@@ -219,6 +245,17 @@ class PostNL extends LitElement {
       ${this.renderDelivery()}
       ${this.renderDistribution()}
       </ha-card>
+    `
+  }
+
+  renderHeader() {
+    if (this._hide.header) return ''
+
+    return html`
+      <header>
+        <ha-icon class="header__icon" .icon=${this.icon}></ha-icon>
+        <h2 class="header__title">${this.name}</h2>
+      </header>
     `
   }
 
@@ -274,12 +311,18 @@ class PostNL extends LitElement {
   }
 
   renderLetter(letter) {
+    if (window.moment) {
+      if (moment(letter.delivery_date).isBefore(moment().subtract(this.past_days, 'days').startOf('day'))) {
+        return;
+      }
+    }
+
     if (letter.image == null) {
       return html`
         <tr>
           <td class="name">${letter.id}</td>
           <td>${(letter.status_message != null) ? letter.status_message : "Unknown"}</td>
-          <td>${(new Date(letter.delivery_date)).toLocaleDateString((navigator.language) ? navigator.language : navigator.userLanguage)}</td>
+          <td>${this.dateConversion(letter.delivery_date)}</td>
         </tr>
       `
     } else {
@@ -287,7 +330,7 @@ class PostNL extends LitElement {
         <tr>
           <td class="name"><a href="${letter.image}" target="_blank">${letter.id}</a></td>
           <td>${(letter.status_message != null) ? letter.status_message : "Unknown"}</td>
-          <td>${(new Date(letter.delivery_date)).toLocaleDateString((navigator.language) ? navigator.language : navigator.userLanguage)}</td>
+          <td>${this.dateConversion(letter.delivery_date)}</td>
         </tr>
       `    
     }
@@ -396,13 +439,20 @@ class PostNL extends LitElement {
   renderShipment(shipment) {
     var delivery_date = "Unknown"
 
+    if (window.moment) {
+      if (shipment.delivery_date != null && moment(shipment.delivery_date).isBefore(moment().subtract(this.past_days, 'days').startOf('day'))) {
+        return;
+      }
+    }
+
+    // Convesion Time
     if (shipment.delivery_date != null) {
-      var delivery_date = (new Date(shipment.delivery_date)).toLocaleDateString((navigator.language) ? navigator.language : navigator.userLanguage)
+      var delivery_date = this.dateConversion(shipment.delivery_date)
     } else if (shipment.planned_date != null) {
       var delivery_date = 
-        (new Date(shipment.planned_date)).toLocaleDateString((navigator.language) ? navigator.language : navigator.userLanguage) + " " +
-        (new Date(shipment.planned_from)).toLocaleTimeString((navigator.language) ? navigator.language : navigator.userLanguage) + " - " +
-        (new Date(shipment.planned_to)).toLocaleTimeString((navigator.language) ? navigator.language : navigator.userLanguage)
+        this.dateConversion(shipment.planned_date) + " " +
+        this.timeConversion(shipment.planned_from) + " - " +
+        this.timeConversion(shipment.planned_to)
     }
 
     return html`
@@ -412,6 +462,24 @@ class PostNL extends LitElement {
           <td>${delivery_date}</td>
         </tr>
     `
+  }
+
+  dateConversion(date) {
+    if (window.moment) {
+      date = moment(date);
+      return date.format(this.date_format); 
+    } 
+    
+    return (new Date(date)).toLocaleDateString(this._language)
+  }
+  
+  timeConversion(date) {
+    if (window.moment) {
+      date = moment(date);
+      return date.format(this.time_format); 
+    }
+
+    return (new Date(date)).toLocaleTimeString(this._language)
   }
 
   setConfig(config) {
