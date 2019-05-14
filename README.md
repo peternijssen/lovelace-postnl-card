@@ -14,6 +14,8 @@ https://community.home-assistant.io/t/lovelace-postnl/112433
 
 ```
 resources:
+  - url: https://unpkg.com/moment@2.24.0/moment.js
+    type: js
   - url: /local/postnl-card.js
     type: module
  ```
