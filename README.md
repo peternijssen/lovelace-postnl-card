@@ -68,8 +68,8 @@ cards:
 | name | string | PostNL | v0.8 | Override the card name |
 | icon | string | mdi:mailbox | v0.8 | Icon next to the card name |
 | hide | object | object | v0.8 | Control specifically information fields to show. |
-| date_format | string | DD MMM YYYY | v0.9 | Overrides the default date format. (Requires MomentJS) |
-| time_format | string | HH:mm | v0.9 | Overrides the default time format. (Requires MomentJS) | 
+| date_format | string | DD MMM YYYY | v0.9 | Overrides the default date [format](https://momentjs.com/docs/#/displaying/format/). (Requires MomentJS) |
+| time_format | string | HH:mm | v0.9 | Overrides the default time [format](https://momentjs.com/docs/#/displaying/format/). (Requires MomentJS) | 
 | past_days |integer | 1 | v0.9 | Defines how many days you want to see from the past. (Requires MomentJS) |
 
 
