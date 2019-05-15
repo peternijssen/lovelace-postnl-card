@@ -231,46 +231,52 @@ class PostNL extends LitElement {
     this.distribution_delivered = []
 
     // Format letters
-    Object.entries(this.letterObject.attributes.letters).sort((a, b) => new Date(b[1].delivery_date) - new Date(a[1].delivery_date)).map(([key, letter]) => {
-        if (window.moment) {
-          if (moment(letter.delivery_date).isBefore(moment().subtract(this.past_days, 'days').startOf('day'))) {
-            return;
+    if (this.letterObject) {
+      Object.entries(this.letterObject.attributes.letters).sort((a, b) => new Date(b[1].delivery_date) - new Date(a[1].delivery_date)).map(([key, letter]) => {
+          if (window.moment) {
+            if (moment(letter.delivery_date).isBefore(moment().subtract(this.past_days, 'days').startOf('day'))) {
+              return;
+            }
           }
-        }
 
-        this.letters.push(letter);
-    });
+          this.letters.push(letter);
+      });
+    }
 
     // Format deliveries
-    Object.entries(this.deliveryObject.attributes.enroute).sort((a, b) => new Date(b[1].planned_date) - new Date(a[1].planned_date)).map(([key, shipment]) => {
-      this.delivery_enroute.push(shipment);
-    });
+    if (this.deliveryObject) {
+      Object.entries(this.deliveryObject.attributes.enroute).sort((a, b) => new Date(b[1].planned_date) - new Date(a[1].planned_date)).map(([key, shipment]) => {
+        this.delivery_enroute.push(shipment);
+      });
 
-    Object.entries(this.deliveryObject.attributes.delivered).sort((a, b) => new Date(b[1].delivery_date) - new Date(a[1].delivery_date)).map(([key, shipment]) => {
-        if (window.moment) {
-          if (shipment.delivery_date != null && moment(shipment.delivery_date).isBefore(moment().subtract(this.past_days, 'days').startOf('day'))) {
-            return;
+      Object.entries(this.deliveryObject.attributes.delivered).sort((a, b) => new Date(b[1].delivery_date) - new Date(a[1].delivery_date)).map(([key, shipment]) => {
+          if (window.moment) {
+            if (shipment.delivery_date != null && moment(shipment.delivery_date).isBefore(moment().subtract(this.past_days, 'days').startOf('day'))) {
+              return;
+            }
           }
-        }
 
 
-      this.delivery_delivered.push(shipment);
-    });
+        this.delivery_delivered.push(shipment);
+      });
+    }
 
     // Format distribution
-    Object.entries(this.distributionObject.attributes.enroute).sort((a, b) => new Date(b[1].planned_date) - new Date(a[1].planned_date)).map(([key, shipment]) => {
-      this.distribution_enroute.push(shipment);
-    });
+    if (this.distributionObject) {
+      Object.entries(this.distributionObject.attributes.enroute).sort((a, b) => new Date(b[1].planned_date) - new Date(a[1].planned_date)).map(([key, shipment]) => {
+        this.distribution_enroute.push(shipment);
+      });
 
-    Object.entries(this.distributionObject.attributes.delivered).sort((a, b) => new Date(b[1].delivery_date) - new Date(a[1].delivery_date)).map(([key, shipment]) => {
-        if (window.moment) {
-          if (shipment.delivery_date != null && moment(shipment.delivery_date).isBefore(moment().subtract(this.past_days, 'days').startOf('day'))) {
-            return;
+      Object.entries(this.distributionObject.attributes.delivered).sort((a, b) => new Date(b[1].delivery_date) - new Date(a[1].delivery_date)).map(([key, shipment]) => {
+          if (window.moment) {
+            if (shipment.delivery_date != null && moment(shipment.delivery_date).isBefore(moment().subtract(this.past_days, 'days').startOf('day'))) {
+              return;
+            }
           }
-        }
 
-      this.distribution_delivered.push(shipment);
-    });
+        this.distribution_delivered.push(shipment);
+      });
+    }
   }
 
   render({ _hass, _hide, _values, config, delivery, distribution, letters  } = this) {
