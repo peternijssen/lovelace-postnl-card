@@ -1,4 +1,4 @@
-  const LitElement = Object.getPrototypeOf(
+const LitElement = Object.getPrototypeOf(
   customElements.get("ha-panel-lovelace")
 );
 const html = LitElement.prototype.html;
@@ -36,7 +36,7 @@ function renderStyles() {
         font-size: var(--paper-font-body1_-_font-size);
         font-weight: var(--paper-font-body1_-_font-weight);
         line-height: var(--paper-font-body1_-_line-height);
-        padding-bottom: 16px);
+        padding-bottom: 16px;
       }
       ha-card.no-header {
         padding: 16px 0;
@@ -126,13 +126,13 @@ function renderStyles() {
         margin: 0;
         align-self: left;
       }
+
+      footer {
+        padding: 16px;
+        color: red;
+      }
     </style>
   `
-}
-
-function isToday(dateParameter) {
-        var today = new Date();
-        return dateParameter.getDate() === today.getDate() && dateParameter.getMonth() === today.getMonth() && dateParameter.getFullYear() === today.getFullYear();
 }
 
 class PostNL extends LitElement {
@@ -157,9 +157,14 @@ class PostNL extends LitElement {
     super()
 
     this._hass = null
-    this.delivery = null
-    this.distribution = null
-    this.letters = null
+    this.deliveryObject = null
+    this.distributionObject = null
+    this.letterObject = null
+    this.delivery_enroute = []
+    this.delivery_delivered = []
+    this.distribution_enroute = []
+    this.distribution_delivered = []
+    this.letters = []
     this.icon = null
     this.name = null
     this.date_format = null
@@ -173,15 +178,15 @@ class PostNL extends LitElement {
     this._hass = hass
 
     if (this.config.delivery) {
-      this.delivery = hass.states[this.config.delivery]
+      this.deliveryObject = hass.states[this.config.delivery]
     }
 
     if (this.config.distribution) {
-      this.distribution = hass.states[this.config.distribution]
+      this.distributionObject = hass.states[this.config.distribution]
     }
 
     if (this.config.letters) {
-      this.letters = hass.states[this.config.letters]
+      this.letterObject = hass.states[this.config.letters]
     }
 
     if (this.config.hide) {
@@ -219,6 +224,53 @@ class PostNL extends LitElement {
     }
 
     this._language = hass.language
+
+    this.delivery_enroute = []
+    this.delivery_delivered = []
+    this.distribution_enroute = []
+    this.distribution_delivered = []
+
+    // Format letters
+    Object.entries(this.letterObject.attributes.letters).sort((a, b) => new Date(b[1].delivery_date) - new Date(a[1].delivery_date)).map(([key, letter]) => {
+        if (window.moment) {
+          if (moment(letter.delivery_date).isBefore(moment().subtract(this.past_days, 'days').startOf('day'))) {
+            return;
+          }
+        }
+
+        this.letters.push(letter);
+    });
+
+    // Format deliveries
+    Object.entries(this.deliveryObject.attributes.enroute).sort((a, b) => new Date(b[1].planned_date) - new Date(a[1].planned_date)).map(([key, shipment]) => {
+      this.delivery_enroute.push(shipment);
+    });
+
+    Object.entries(this.deliveryObject.attributes.delivered).sort((a, b) => new Date(b[1].delivery_date) - new Date(a[1].delivery_date)).map(([key, shipment]) => {
+        if (window.moment) {
+          if (shipment.delivery_date != null && moment(shipment.delivery_date).isBefore(moment().subtract(this.past_days, 'days').startOf('day'))) {
+            return;
+          }
+        }
+
+
+      this.delivery_delivered.push(shipment);
+    });
+
+    // Format distribution
+    Object.entries(this.distributionObject.attributes.enroute).sort((a, b) => new Date(b[1].planned_date) - new Date(a[1].planned_date)).map(([key, shipment]) => {
+      this.distribution_enroute.push(shipment);
+    });
+
+    Object.entries(this.distributionObject.attributes.delivered).sort((a, b) => new Date(b[1].delivery_date) - new Date(a[1].delivery_date)).map(([key, shipment]) => {
+        if (window.moment) {
+          if (shipment.delivery_date != null && moment(shipment.delivery_date).isBefore(moment().subtract(this.past_days, 'days').startOf('day'))) {
+            return;
+          }
+        }
+
+      this.distribution_delivered.push(shipment);
+    });
   }
 
   render({ _hass, _hide, _values, config, delivery, distribution, letters  } = this) {
@@ -244,6 +296,7 @@ class PostNL extends LitElement {
       ${this.renderLetters()}
       ${this.renderDelivery()}
       ${this.renderDistribution()}
+      ${this.renderWarning()}
       </ha-card>
     `
   }
@@ -259,19 +312,29 @@ class PostNL extends LitElement {
     `
   }
 
+  renderWarning() {
+    if (window.moment) return ''
+
+    return html`
+      <footer>
+        You did not include MomentJS which degrades the ability of this card. Please see the <a href="https://github.com/peternijssen/lovelace-postnl">Github repository</a> for more information.
+      </footer>
+    `
+  }
+
   renderLettersInfo() {
     if (!this.letters) return ''
 
     return html`
       <div class="info">
         <ha-icon class="info__icon" icon="mdi:email"></ha-icon><br />
-        <span>${this.letters.state} letters</span>
+        <span>${this.letters.length} letters</span>
       </div>
     `
   }
 
   renderLetters() {
-    if (!this.letters || (this.letters && this.letters.state === "0")) return ''
+    if (!this.letters || (this.letters && this.letters.length === 0)) return ''
 
     return html`
       <header>
@@ -289,7 +352,7 @@ class PostNL extends LitElement {
             </tr>
           </thead>
           <tbody>
-            ${Object.entries(this.letters.attributes.letters).sort((a, b) => new Date(b[1].delivery_date) - new Date(a[1].delivery_date)).map(([key, letter]) => {
+            ${Object.entries(this.letters).map(([key, letter]) => {
                 return this.renderLetter(letter)
             })}
           </tbody>
@@ -301,22 +364,16 @@ class PostNL extends LitElement {
   renderLetterImage() {
     if (this._hide.first_letter) return ''
 
-    if (this.letters.attributes.letters[0].image == null) return ''
+    if (this.letters[0] == null || this.letters[0].image == null) return ''
 
     return html`
       <section class="img-body">
-        <img src="${this.letters.attributes.letters[0].image}&width=400&height=300" />
+        <img src="${this.letters[0].image}&width=400&height=300" />
       </section>
     `
   }
 
   renderLetter(letter) {
-    if (window.moment) {
-      if (moment(letter.delivery_date).isBefore(moment().subtract(this.past_days, 'days').startOf('day'))) {
-        return;
-      }
-    }
-
     if (letter.image == null) {
       return html`
         <tr>
@@ -337,41 +394,42 @@ class PostNL extends LitElement {
   }
 
   renderDeliveryInfo() {
-    if (!this.delivery) return ''
+    if (!this.deliveryObject) return ''
 
     return html`
       <div class="info">
         <ha-icon class="info__icon" icon="mdi:truck-delivery"></ha-icon><br />
-        <span>${this.delivery.state} enroute</span>
+        <span>${this.delivery_enroute.length} enroute</span>
       </div>
       <div class="info">
         <ha-icon class="info__icon" icon="mdi:package-variant"></ha-icon><br />
-        <span>${this.delivery.attributes.delivered.length} delivered</span>
+        <span>${this.delivery_delivered.length} delivered</span>
       </div>
     `
   }
 
 
   renderDistributionInfo() {
-    if (!this.distribution) return ''
+    if (!this.distributionObject) return ''
 
     return html`
       <div class="info">
         <ha-icon class="info__icon" icon="mdi:truck-delivery"></ha-icon><br />
-        <span>${this.distribution.state} enroute</span>
+        <span>${this.distribution_enroute.length} enroute</span>
       </div>
       <div class="info">
         <ha-icon class="info__icon" icon="mdi:package-variant"></ha-icon><br />
-        <span>${this.distribution.attributes.delivered.length} delivered</span>
+        <span>${this.distribution_delivered.length} delivered</span>
       </div>
     `
   }
 
   renderDelivery() {
-    if (!this.delivery) return ''
+    if (!this.deliveryObject) return ''
 
-    // Nothing enroute and delivery disabled
-    if (this.delivery.state === "0" && this._hide.delivered) return ''
+    if (this.delivery_enroute.length === 0 && this._hide.delivered) return ''
+
+    if (this.delivery_enroute.length === 0 && this.delivery_delivered.length === 0) return ''
 
     return html`
       <header>
@@ -388,11 +446,11 @@ class PostNL extends LitElement {
             </tr>
           </thead>
           <tbody>
-            ${Object.entries(this.delivery.attributes.enroute).sort((a, b) => new Date(b[1].planned_date) - new Date(a[1].planned_date)).map(([key, shipment]) => {
+            ${Object.entries(this.delivery_enroute).map(([key, shipment]) => {
               return this.renderShipment(shipment)
             })}
 
-            ${this._hide.delivered ? "" : Object.entries(this.delivery.attributes.delivered).sort((a, b) => new Date(b[1].delivery_date) - new Date(a[1].delivery_date)).map(([key, shipment]) => {
+            ${this._hide.delivered ? "" : Object.entries(this.delivery_delivered).map(([key, shipment]) => {
               return this.renderShipment(shipment)
             })}
           </tbody>
@@ -403,10 +461,11 @@ class PostNL extends LitElement {
 
   renderDistribution() {
     // Distribution disabled
-    if (!this.distribution ) return ''
+    if (!this.distributionObject) return ''
 
-    // Nothing enroute and delivery disabled
-    if (this.distribution.state === "0" && this._hide.delivered) return ''
+    if (this.distribution_enroute.length === 0 && this._hide.delivered) return ''
+
+    if (this.distribution_enroute.length === 0 && this.distribution_delivered.length === 0) return ''
 
     return html`
       <header>
@@ -423,11 +482,11 @@ class PostNL extends LitElement {
             </tr>
           </thead>
           <tbody>
-            ${Object.entries(this.distribution.attributes.enroute).sort((a, b) => new Date(b[1].planned_date) - new Date(a[1].planned_date)).map(([key, shipment]) => {
+            ${Object.entries(this.distribution_enroute).map(([key, shipment]) => {
               return this.renderShipment(shipment)
             })}
 
-            ${this._hide.delivered ? "" : Object.entries(this.distribution.attributes.delivered).sort((a, b) => new Date(b[1].delivery_date) - new Date(a[1].delivery_date)).map(([key, shipment]) => {
+            ${this._hide.delivered ? "" : Object.entries(this.distribution_delivered).map(([key, shipment]) => {
               return this.renderShipment(shipment)
             })}
           </tbody>
@@ -437,18 +496,14 @@ class PostNL extends LitElement {
   }
 
   renderShipment(shipment) {
-    var delivery_date = "Unknown"
-
-    if (window.moment) {
-      if (shipment.delivery_date != null && moment(shipment.delivery_date).isBefore(moment().subtract(this.past_days, 'days').startOf('day'))) {
-        return;
-      }
-    }
+    var delivery_date = "Unknown";
+    var className = "delivered";
 
     // Convesion Time
     if (shipment.delivery_date != null) {
       var delivery_date = this.dateConversion(shipment.delivery_date)
     } else if (shipment.planned_date != null) {
+      var className = "enroute";
       var delivery_date = 
         this.dateConversion(shipment.planned_date) + " " +
         this.timeConversion(shipment.planned_from) + " - " +
@@ -456,7 +511,7 @@ class PostNL extends LitElement {
     }
 
     return html`
-        <tr>
+        <tr class="${className}">
           <td class="name"><a href="${shipment.url}" target="_blank">${shipment.name}</a></td>
           <td>${shipment.status_message}</td>
           <td>${delivery_date}</td>
@@ -467,7 +522,12 @@ class PostNL extends LitElement {
   dateConversion(date) {
     if (window.moment) {
       date = moment(date);
-      return date.format(this.date_format); 
+
+      return date.calendar(null, {
+        sameDay: '[Today]',
+        nextDay: '[Tomorrow]',
+        sameElse: this.date_format
+      }); 
     } 
     
     return (new Date(date)).toLocaleDateString(this._language)
