@@ -329,7 +329,7 @@ class PostNL extends LitElement {
   }
 
   renderLettersInfo() {
-    if (!this.letters) return ''
+    if (!this.letterObject) return ''
 
     return html`
       <div class="info">
@@ -340,7 +340,7 @@ class PostNL extends LitElement {
   }
 
   renderLetters() {
-    if (!this.letters || (this.letters && this.letters.length === 0)) return ''
+    if (!this.letterObject || (this.letters && this.letters.length === 0)) return ''
 
     return html`
       <header>
