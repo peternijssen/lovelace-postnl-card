@@ -140,9 +140,9 @@ class PostNL extends LitElement {
     return {
       _hass: Object,
       config: Object,
-      delivery: Object,
-      distribution: Object,
-      letters: Object,
+      deliveryObject: Object,
+      distributionObject: Object,
+      letterObject: Object,
       icon: String,
       name: String,
       date_format: String,
@@ -229,6 +229,7 @@ class PostNL extends LitElement {
     this.delivery_delivered = []
     this.distribution_enroute = []
     this.distribution_delivered = []
+    this.letters = []
 
     // Format letters
     if (this.letterObject) {
