@@ -303,7 +303,9 @@ class PostNL extends LitElement {
       ${this.renderLetters()}
       ${this.renderDelivery()}
       ${this.renderDistribution()}
-      ${this.renderWarning()}
+      ${this.renderMomentJSWarning()}
+      ${this.renderLetterWarning()}
+
       </ha-card>
     `
   }
@@ -319,12 +321,26 @@ class PostNL extends LitElement {
     `
   }
 
-  renderWarning() {
+  // Remove when mandatory
+  renderMomentJSWarning() {
     if (window.moment) return ''
 
     return html`
       <footer>
         You did not include MomentJS which degrades the ability of this card. Please see the <a href="https://github.com/peternijssen/lovelace-postnl">Github repository</a> for more information.
+      </footer>
+    `
+  }
+
+  renderLetterWarning() {
+    if (!this.letterObject) return ''
+
+    // Remove undefined check after the first of june
+    if (typeof this.letterObject.attributes.enabled === 'undefined' || this.letterObject.attributes.enabled) return ''
+
+    return html`
+      <footer>
+        It seems you have set the letter object, but you haven't activated this within PostNL yet. Consider removing the letter object from the card or activate this option in PostNL.
       </footer>
     `
   }
