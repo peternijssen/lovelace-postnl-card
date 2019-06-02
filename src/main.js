@@ -1,14 +1,11 @@
-const LitElement = Object.getPrototypeOf(
-  customElements.get("ha-panel-lovelace")
-);
-const html = LitElement.prototype.html;
-const css = LitElement.prototype.css;
+import { LitElement, html, css } from 'lit-element';
+import moment from 'moment/src/moment';
 
 const DEFAULT_HIDE = {
   delivered: false,
   first_letter: false,
   header: false,
-}
+};
 
 function renderNotFoundStyles() {
   return html`
@@ -23,7 +20,7 @@ function renderNotFoundStyles() {
         padding: calc(16px);
       }
     </style>
-  `
+  `;
 }
 
 function renderStyles() {
@@ -132,7 +129,7 @@ function renderStyles() {
         color: red;
       }
     </style>
-  `
+  `;
 }
 
 class PostNL extends LitElement {
@@ -150,97 +147,95 @@ class PostNL extends LitElement {
       past_days: String,
       _language: String,
       _hide: Object,
-    }
+    };
   }
 
   constructor() {
-    super()
+    super();
 
-    this._hass = null
-    this.deliveryObject = null
-    this.distributionObject = null
-    this.letterObject = null
-    this.delivery_enroute = []
-    this.delivery_delivered = []
-    this.distribution_enroute = []
-    this.distribution_delivered = []
-    this.letters = []
-    this.icon = null
-    this.name = null
-    this.date_format = null
-    this.time_format = null
-    this.past_days = null
-    this._language = null
-    this._hide = DEFAULT_HIDE
+    this._hass = null;
+    this.deliveryObject = null;
+    this.distributionObject = null;
+    this.letterObject = null;
+    this.delivery_enroute = [];
+    this.delivery_delivered = [];
+    this.distribution_enroute = [];
+    this.distribution_delivered = [];
+    this.letters = [];
+    this.icon = null;
+    this.name = null;
+    this.date_format = null;
+    this.time_format = null;
+    this.past_days = null;
+    this._language = null;
+    this._hide = DEFAULT_HIDE;
   }
 
   set hass(hass) {
-    this._hass = hass
+    this._hass = hass;
 
     if (this.config.delivery) {
-      this.deliveryObject = hass.states[this.config.delivery]
+      this.deliveryObject = hass.states[this.config.delivery];
     }
 
     if (this.config.distribution) {
-      this.distributionObject = hass.states[this.config.distribution]
+      this.distributionObject = hass.states[this.config.distribution];
     }
 
     if (this.config.letters) {
-      this.letterObject = hass.states[this.config.letters]
+      this.letterObject = hass.states[this.config.letters];
     }
 
     if (this.config.hide) {
-      this._hide = { ...this._hide, ...this.config.hide }
+      this._hide = { ...this._hide, ...this.config.hide };
     }
 
     if (typeof this.config.name === 'string') {
-      this.name = this.config.name
+      this.name = this.config.name;
     } else {
-      this.name = "PostNL"
+      this.name = "PostNL";
     }
 
     if (this.config.icon) {
-      this.icon = this.config.icon
+      this.icon = this.config.icon;
     } else {
-      this.icon = "mdi:mailbox"
+      this.icon = "mdi:mailbox";
     }
 
     if (this.config.date_format) {
-      this.date_format = this.config.date_format
+      this.date_format = this.config.date_format;
     } else {
       this.date_format = "DD MMM YYYY";
     }
 
     if (this.config.time_format) {
-      this.time_format = this.config.time_format
+      this.time_format = this.config.time_format;
     } else {
       this.time_format = "HH:mm";
     }
 
     if (this.config.past_days) {
-      this.past_days = parseInt(this.config.past_days)
+      this.past_days = parseInt(this.config.past_days, 10);
     } else {
       this.past_days = 1;
     }
 
-    this._language = hass.language
+    this._language = hass.language;
 
-    this.delivery_enroute = []
-    this.delivery_delivered = []
-    this.distribution_enroute = []
-    this.distribution_delivered = []
-    this.letters = []
+    this.delivery_enroute = [];
+    this.delivery_delivered = [];
+    this.distribution_enroute = [];
+    this.distribution_delivered = [];
+    this.letters = [];
 
     // Format letters
     if (this.letterObject) {
       Object.entries(this.letterObject.attributes.letters).sort((a, b) => new Date(b[1].delivery_date) - new Date(a[1].delivery_date)).map(([key, letter]) => {
-          if (window.moment) {
-            if (moment(letter.delivery_date).isBefore(moment().subtract(this.past_days, 'days').startOf('day'))) {
-              return;
-            }
-          }
+        if (moment(letter.delivery_date).isBefore(moment().subtract(this.past_days, 'days').startOf('day'))) {
+          return;
+        }
 
-          this.letters.push(letter);
+        this.letters.push(letter);
       });
     }
 
@@ -251,12 +246,9 @@ class PostNL extends LitElement {
       });
 
       Object.entries(this.deliveryObject.attributes.delivered).sort((a, b) => new Date(b[1].delivery_date) - new Date(a[1].delivery_date)).map(([key, shipment]) => {
-          if (window.moment) {
-            if (shipment.delivery_date != null && moment(shipment.delivery_date).isBefore(moment().subtract(this.past_days, 'days').startOf('day'))) {
-              return;
-            }
-          }
-
+        if (shipment.delivery_date != null && moment(shipment.delivery_date).isBefore(moment().subtract(this.past_days, 'days').startOf('day'))) {
+          return;
+        }
 
         this.delivery_delivered.push(shipment);
       });
@@ -269,25 +261,25 @@ class PostNL extends LitElement {
       });
 
       Object.entries(this.distributionObject.attributes.delivered).sort((a, b) => new Date(b[1].delivery_date) - new Date(a[1].delivery_date)).map(([key, shipment]) => {
-          if (window.moment) {
-            if (shipment.delivery_date != null && moment(shipment.delivery_date).isBefore(moment().subtract(this.past_days, 'days').startOf('day'))) {
-              return;
-            }
-          }
+        if (shipment.delivery_date != null && moment(shipment.delivery_date).isBefore(moment().subtract(this.past_days, 'days').startOf('day'))) {
+          return;
+        }
 
         this.distribution_delivered.push(shipment);
       });
     }
   }
 
-  render({ _hass, _hide, _values, config, delivery, distribution, letters  } = this) {
+  render({
+    _hass, _hide, _values, config, delivery, distribution, letters
+  } = this) {
     if (!delivery && !distribution && !letters) {
       return html`
         ${renderNotFoundStyles()}
         <ha-card class="not-found">
           Entity not available: <strong class="name">${config.delivery}</strong> or <strong class="name">${config.distribution}</strong> or <strong>${config.letters}</strong>
         </ha-card>
-      `
+      `;
     }
 
     return html`
@@ -303,61 +295,49 @@ class PostNL extends LitElement {
       ${this.renderLetters()}
       ${this.renderDelivery()}
       ${this.renderDistribution()}
-      ${this.renderMomentJSWarning()}
       ${this.renderLetterWarning()}
 
       </ha-card>
-    `
+    `;
   }
 
   renderHeader() {
-    if (this._hide.header) return ''
+    if (this._hide.header) return '';
 
     return html`
       <header>
         <ha-icon class="header__icon" .icon=${this.icon}></ha-icon>
         <h2 class="header__title">${this.name}</h2>
       </header>
-    `
-  }
-
-  // Remove when mandatory
-  renderMomentJSWarning() {
-    if (window.moment) return ''
-
-    return html`
-      <footer>
-        You did not include MomentJS which degrades the ability of this card. Please see the <a href="https://github.com/peternijssen/lovelace-postnl">Github repository</a> for more information.
-      </footer>
-    `
+    `;
   }
 
   renderLetterWarning() {
-    if (!this.letterObject) return ''
+    if (!this.letterObject) return '';
 
     // Remove undefined check after the first of june
-    if (typeof this.letterObject.attributes.enabled === 'undefined' || this.letterObject.attributes.enabled) return ''
+    if (typeof this.letterObject.attributes.enabled === 'undefined' || this.letterObject.attributes.enabled) return '';
 
     return html`
       <footer>
         It seems you have set the letter object, but you haven't activated this within PostNL yet. Consider removing the letter object from the card or activate this option in PostNL.
       </footer>
-    `
+    `;
   }
 
   renderLettersInfo() {
-    if (!this.letterObject) return ''
+    if (!this.letterObject) return '';
 
     return html`
       <div class="info">
         <ha-icon class="info__icon" icon="mdi:email"></ha-icon><br />
         <span>${this.letters.length} letters</span>
       </div>
-    `
+    `;
   }
 
   renderLetters() {
-    if (!this.letterObject || (this.letters && this.letters.length === 0)) return ''
+    if (!this.letterObject || (this.letters && this.letters.length === 0)) return '';
 
     return html`
       <header>
@@ -375,25 +355,23 @@ class PostNL extends LitElement {
             </tr>
           </thead>
           <tbody>
-            ${Object.entries(this.letters).map(([key, letter]) => {
-                return this.renderLetter(letter)
-            })}
+            ${Object.entries(this.letters).map(([key, letter]) => this.renderLetter(letter))}
           </tbody>
         </table>
       </section>
-    `
+    `;
   }
 
   renderLetterImage() {
-    if (this._hide.first_letter) return ''
+    if (this._hide.first_letter) return '';
 
-    if (this.letters[0] == null || this.letters[0].image == null) return ''
+    if (this.letters[0] == null || this.letters[0].image == null) return '';
 
     return html`
       <section class="img-body">
         <img src="${this.letters[0].image}&width=400&height=300" />
       </section>
-    `
+    `;
   }
 
   renderLetter(letter) {
@@ -404,7 +382,7 @@ class PostNL extends LitElement {
           <td>${(letter.status_message != null) ? letter.status_message : "Unknown"}</td>
           <td>${this.dateConversion(letter.delivery_date)}</td>
         </tr>
-      `
+      `;
     } else {
       return html`
         <tr>
@@ -412,12 +390,12 @@ class PostNL extends LitElement {
           <td>${(letter.status_message != null) ? letter.status_message : "Unknown"}</td>
           <td>${this.dateConversion(letter.delivery_date)}</td>
         </tr>
-      `    
+      `;
     }
   }
 
   renderDeliveryInfo() {
-    if (!this.deliveryObject) return ''
+    if (!this.deliveryObject) return '';
 
     return html`
       <div class="info">
@@ -428,12 +406,12 @@ class PostNL extends LitElement {
         <ha-icon class="info__icon" icon="mdi:package-variant"></ha-icon><br />
         <span>${this.delivery_delivered.length} delivered</span>
       </div>
-    `
+    `;
   }
 
 
   renderDistributionInfo() {
-    if (!this.distributionObject) return ''
+    if (!this.distributionObject) return '';
 
     return html`
       <div class="info">
@@ -444,15 +422,15 @@ class PostNL extends LitElement {
         <ha-icon class="info__icon" icon="mdi:package-variant"></ha-icon><br />
         <span>${this.distribution_delivered.length} delivered</span>
       </div>
-    `
+    `;
   }
 
   renderDelivery() {
-    if (!this.deliveryObject) return ''
+    if (!this.deliveryObject) return '';
 
-    if (this.delivery_enroute.length === 0 && this._hide.delivered) return ''
+    if (this.delivery_enroute.length === 0 && this._hide.delivered) return '';
 
-    if (this.delivery_enroute.length === 0 && this.delivery_delivered.length === 0) return ''
+    if (this.delivery_enroute.length === 0 && this.delivery_delivered.length === 0) return '';
 
     return html`
       <header>
@@ -469,26 +447,22 @@ class PostNL extends LitElement {
             </tr>
           </thead>
           <tbody>
-            ${Object.entries(this.delivery_enroute).map(([key, shipment]) => {
-              return this.renderShipment(shipment)
-            })}
+            ${Object.entries(this.delivery_enroute).map(([key, shipment]) => this.renderShipment(shipment))}
 
-            ${this._hide.delivered ? "" : Object.entries(this.delivery_delivered).map(([key, shipment]) => {
-              return this.renderShipment(shipment)
-            })}
+            ${this._hide.delivered ? "" : Object.entries(this.delivery_delivered).map(([key, shipment]) => this.renderShipment(shipment))}
           </tbody>
         </table>
       </section>
-    `
+    `;
   }
 
   renderDistribution() {
     // Distribution disabled
-    if (!this.distributionObject) return ''
+    if (!this.distributionObject) return '';
 
-    if (this.distribution_enroute.length === 0 && this._hide.delivered) return ''
+    if (this.distribution_enroute.length === 0 && this._hide.delivered) return '';
 
-    if (this.distribution_enroute.length === 0 && this.distribution_delivered.length === 0) return ''
+    if (this.distribution_enroute.length === 0 && this.distribution_delivered.length === 0) return '';
 
     return html`
       <header>
@@ -505,32 +479,27 @@ class PostNL extends LitElement {
             </tr>
           </thead>
           <tbody>
-            ${Object.entries(this.distribution_enroute).map(([key, shipment]) => {
-              return this.renderShipment(shipment)
-            })}
+            ${Object.entries(this.distribution_enroute).map(([key, shipment]) => this.renderShipment(shipment))}
 
-            ${this._hide.delivered ? "" : Object.entries(this.distribution_delivered).map(([key, shipment]) => {
-              return this.renderShipment(shipment)
-            })}
+            ${this._hide.delivered ? "" : Object.entries(this.distribution_delivered).map(([key, shipment]) => this.renderShipment(shipment))}
           </tbody>
         </table>
       </section>
-    `
+    `;
   }
 
   renderShipment(shipment) {
-    var delivery_date = "Unknown";
-    var className = "delivered";
+    let delivery_date = "Unknown";
+    let className = "delivered";
 
     // Convesion Time
     if (shipment.delivery_date != null) {
-      var delivery_date = this.dateConversion(shipment.delivery_date)
+      delivery_date = this.dateConversion(shipment.delivery_date);
     } else if (shipment.planned_date != null) {
-      var className = "enroute";
-      var delivery_date = 
-        this.dateConversion(shipment.planned_date) + " " +
-        this.timeConversion(shipment.planned_from) + " - " +
-        this.timeConversion(shipment.planned_to)
+      className = "enroute";
+      delivery_date = `${this.dateConversion(shipment.planned_date)} ${
+        this.timeConversion(shipment.planned_from)} - ${
+        this.timeConversion(shipment.planned_to)}`;
     }
 
     return html`
@@ -539,47 +508,39 @@ class PostNL extends LitElement {
           <td>${shipment.status_message}</td>
           <td>${delivery_date}</td>
         </tr>
-    `
+    `;
   }
 
   dateConversion(date) {
-    if (window.moment) {
-      date = moment(date);
+    const momentDate = moment(date);
 
-      return date.calendar(null, {
-        sameDay: '[Today]',
-        nextDay: '[Tomorrow]',
-        sameElse: this.date_format
-      }); 
-    } 
-    
-    return (new Date(date)).toLocaleDateString(this._language)
+    return momentDate.calendar(null, {
+      sameDay: '[Today]',
+      nextDay: '[Tomorrow]',
+      sameElse: this.date_format
+    });
   }
-  
-  timeConversion(date) {
-    if (window.moment) {
-      date = moment(date);
-      return date.format(this.time_format); 
-    }
 
-    return (new Date(date)).toLocaleTimeString(this._language)
+  timeConversion(date) {
+    const momentDate = moment(date);
+    return momentDate.format(this.time_format);
   }
 
   setConfig(config) {
     if (!config.delivery && !config.distribution && !config.letters) {
       throw new Error('Please define entities');
     }
-    
+
     this.config = {
       ...config,
-    }
+    };
   }
 
   getCardSize() {
-    return 3
+    return 3;
   }
 }
 
-window.customElements.define('postnl-card', PostNL)
+window.customElements.define('postnl-card', PostNL);
 
-export default PostNL
+export default PostNL;
