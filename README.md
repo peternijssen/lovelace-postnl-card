@@ -1,11 +1,15 @@
 # Lovelace PostNL
+
+[![](https://img.shields.io/github/release/peternijssen/lovelace-postnl-card.svg?style=flat-square)](https://github.com/peternijssen/lovelace-postnl-card/releases/latest)
+[![](https://img.shields.io/travis/peternijssen/lovelace-postnl-card.svg?style=flat-square)](https://travis-ci.org/peternijssen/lovelace-postnl-card)
+![GitHub All Releases](https://img.shields.io/github/downloads/peternijssen/lovelace-postnl-card/total.svg)
+
 Home Assistant Lovelace card for PostNL.
 
-![Example](https://community-home-assistant-assets.s3.dualstack.us-west-2.amazonaws.com/original/3X/5/2/527bc612e6eb092f1d4887e9d6272c7b4278ec65.png)
+**WARNING: This card is not compatible with the current Home Assistant component. Please read this topic:
+https://community.home-assistant.io/t/lovelace-postnl/112433**
 
-## Warning!
-This card is not compatible with the current Home Assistant component. Please read this topic:
-https://community.home-assistant.io/t/lovelace-postnl/112433
+![Example](https://community-home-assistant-assets.s3.dualstack.us-west-2.amazonaws.com/original/3X/5/2/527bc612e6eb092f1d4887e9d6272c7b4278ec65.png)
 
 ## Installation
 
@@ -14,13 +18,22 @@ https://community.home-assistant.io/t/lovelace-postnl/112433
 
 ```
 resources:
-  - url: https://unpkg.com/moment@2.24.0/moment.js
-    type: js
   - url: /local/postnl-card.js
     type: module
  ```
 
-### Installation and tracking with `custom updater` _(Recommended)_
+### Installation and tracking with `HACS` _(Recommended)_
+1. Make sure you've the [HACS](https://custom-components.github.io/hacs/) component installed and working
+2. Add a new `Custom Plugin Repository` under `Settings` with the following URL: `https://github.com/peternijssen/lovelace-postnl-card`
+3. Configure Lovelace to load the card:
+
+```yaml
+resources:
+  - url: /community_plugin/lovelace-postnl-card/postnl-card.js
+    type: module
+```
+
+### Installation and tracking with `custom updater` _(Deprecated)_
 
 1. Make sure you've the [custom_updater](https://github.com/custom-components/custom_updater) component installed and working.
 2. Add a new reference under `card_urls` in your `custom_updater` configuration in `configuration.yaml`.
@@ -34,8 +47,6 @@ resources:
 
 ```yaml
 resources:
-  - url: https://unpkg.com/moment@2.24.0/moment.js
-    type: js
   - url: /customcards/postnl-card.js
     type: module
 ```
@@ -68,9 +79,9 @@ cards:
 | name | string | PostNL | v0.8 | Override the card name |
 | icon | string | mdi:mailbox | v0.8 | Icon next to the card name |
 | hide | object | object | v0.8 | Control specifically information fields to show. |
-| date_format | string | DD MMM YYYY | v0.9 | Overrides the default date [format](https://momentjs.com/docs/#/displaying/format/). (Requires MomentJS) |
-| time_format | string | HH:mm | v0.9 | Overrides the default time [format](https://momentjs.com/docs/#/displaying/format/). (Requires MomentJS) | 
-| past_days |integer | 1 | v0.9 | Defines how many days you want to see from the past. (Requires MomentJS) |
+| date_format | string | DD MMM YYYY | v0.9 | Overrides the default date [format](https://momentjs.com/docs/#/displaying/format/). |
+| time_format | string | HH:mm | v0.9 | Overrides the default time [format](https://momentjs.com/docs/#/displaying/format/). | 
+| past_days |integer | 1 | v0.9 | Defines how many days you want to see from the past. |
 
 
 ## Hide object
