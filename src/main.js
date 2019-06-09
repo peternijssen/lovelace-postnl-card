@@ -1,10 +1,41 @@
 import { LitElement, html, css } from 'lit-element';
 import moment from 'moment/src/moment';
 
+import 'moment/src/locale/nl';
+
 const DEFAULT_HIDE = {
   delivered: false,
   first_letter: false,
   header: false,
+};
+
+const LANG = {
+  en: {
+    unavailable_entities: 'The given entities are not available. Please check your card configuration',
+    unavailable_letters: 'It seems you have set the letter object, but you haven\'t activated this within PostNL yet. Consider removing the letter object from the card or activate this option in PostNL.',
+    letters: 'Letters',
+    title: 'Title',
+    status: 'Status',
+    delivery_date: 'Delivery date',
+    enroute: 'Enroute',
+    delivered: 'Delivered',
+    delivery: 'Delivery',
+    distribution: 'Distribution',
+    unknown: 'Unknown',
+  },
+  nl: {
+    unavailable_entities: 'De opgegeven entiteiten zijn niet beschikbaar. Controleer je card configuratie',
+    unavailable_letters: 'Het lijkt er op dat je brieven hebt geconfigureerd in deze card, maar je hebt deze niet binnen de PostNL app geactiveerd. Verwijder de brieven van deze card of activeer ze binnen de PostNL app.',
+    letters: 'Brieven',
+    title: 'Titel',
+    status: 'Status',
+    delivery_date: 'Bezorgdatum',
+    enroute: 'Onderweg',
+    delivered: 'Afgeleverd',
+    delivery: 'Ontvangen',
+    distribution: 'Versturen',
+    unknown: 'Onbekend',
+  }
 };
 
 function renderNotFoundStyles() {
@@ -169,6 +200,7 @@ class PostNL extends LitElement {
     this.past_days = null;
     this._language = null;
     this._hide = DEFAULT_HIDE;
+    this._lang = LANG;
   }
 
   set hass(hass) {
@@ -221,6 +253,10 @@ class PostNL extends LitElement {
     }
 
     this._language = hass.language;
+    // Lazy fallback
+    if (this._language !== 'nl') {
+      this._language = 'en';
+    }
 
     this.delivery_enroute = [];
     this.delivery_delivered = [];
@@ -277,7 +313,7 @@ class PostNL extends LitElement {
       return html`
         ${renderNotFoundStyles()}
         <ha-card class="not-found">
-          Entity not available: <strong class="name">${config.delivery}</strong> or <strong class="name">${config.distribution}</strong> or <strong>${config.letters}</strong>
+          ${this.translate('unavailable_entities')}
         </ha-card>
       `;
     }
@@ -320,7 +356,7 @@ class PostNL extends LitElement {
 
     return html`
       <footer>
-        It seems you have set the letter object, but you haven't activated this within PostNL yet. Consider removing the letter object from the card or activate this option in PostNL.
+        ${this.translate('unavailable_letters')}
       </footer>
     `;
   }
@@ -331,7 +367,7 @@ class PostNL extends LitElement {
     return html`
       <div class="info">
         <ha-icon class="info__icon" icon="mdi:email"></ha-icon><br />
-        <span>${this.letters.length} letters</span>
+        <span>${this.letters.length} ${this.translate('letters')}</span>
       </div>
     `;
   }
@@ -342,16 +378,16 @@ class PostNL extends LitElement {
     return html`
       <header>
         <ha-icon class="header__icon" icon="mdi:email"></ha-icon>
-        <h2 class="header__title">Letters</h2>
+        <h2 class="header__title">${this.translate('letters')}</h2>
       </header>
       ${this.renderLetterImage()}
       <section class="detail-body">
         <table>
           <thead>
             <tr>
-              <th>Title</th>
-              <th>Status</th>
-              <th>Delivery date</th>
+              <th>${this.translate('title')}</th>
+              <th>${this.translate('status')}</th>
+              <th>${this.translate('delivery_date')}</th>
             </tr>
           </thead>
           <tbody>
@@ -379,7 +415,7 @@ class PostNL extends LitElement {
       return html`
         <tr>
           <td class="name">${letter.id}</td>
-          <td>${(letter.status_message != null) ? letter.status_message : "Unknown"}</td>
+          <td>${(letter.status_message != null) ? letter.status_message : this.translate('unknown')}</td>
           <td>${this.dateConversion(letter.delivery_date)}</td>
         </tr>
       `;
@@ -387,7 +423,7 @@ class PostNL extends LitElement {
       return html`
         <tr>
           <td class="name"><a href="${letter.image}" target="_blank">${letter.id}</a></td>
-          <td>${(letter.status_message != null) ? letter.status_message : "Unknown"}</td>
+          <td>${(letter.status_message != null) ? letter.status_message : this.translate('unknown')}</td>
           <td>${this.dateConversion(letter.delivery_date)}</td>
         </tr>
       `;
@@ -400,11 +436,11 @@ class PostNL extends LitElement {
     return html`
       <div class="info">
         <ha-icon class="info__icon" icon="mdi:truck-delivery"></ha-icon><br />
-        <span>${this.delivery_enroute.length} enroute</span>
+        <span>${this.delivery_enroute.length} ${this.translate('enroute')}</span>
       </div>
       <div class="info">
         <ha-icon class="info__icon" icon="mdi:package-variant"></ha-icon><br />
-        <span>${this.delivery_delivered.length} delivered</span>
+        <span>${this.delivery_delivered.length} ${this.translate('delivered')}</span>
       </div>
     `;
   }
@@ -416,11 +452,11 @@ class PostNL extends LitElement {
     return html`
       <div class="info">
         <ha-icon class="info__icon" icon="mdi:truck-delivery"></ha-icon><br />
-        <span>${this.distribution_enroute.length} enroute</span>
+        <span>${this.distribution_enroute.length} ${this.translate('enroute')}</span>
       </div>
       <div class="info">
         <ha-icon class="info__icon" icon="mdi:package-variant"></ha-icon><br />
-        <span>${this.distribution_delivered.length} delivered</span>
+        <span>${this.distribution_delivered.length} ${this.translate('delivered')}</span>
       </div>
     `;
   }
@@ -435,15 +471,15 @@ class PostNL extends LitElement {
     return html`
       <header>
         <ha-icon class="header__icon" icon="mdi:package-variant"></ha-icon>
-        <h2 class="header__title">Delivery</h2>
+        <h2 class="header__title">${this.translate('delivery')}</h2>
       </header>
       <section class="detail-body">
         <table>
           <thead>
             <tr>
-              <th>Title</th>
-              <th>Status</th>
-              <th>Delivery date</th>
+              <th>${this.translate('title')}</th>
+              <th>${this.translate('status')}</th>
+              <th>${this.translate('delivery_date')}</th>
             </tr>
           </thead>
           <tbody>
@@ -467,15 +503,15 @@ class PostNL extends LitElement {
     return html`
       <header>
         <ha-icon class="header__icon" icon="mdi:package-variant"></ha-icon>
-        <h2 class="header__title">Distribution</h2>
+        <h2 class="header__title">${this.translate('distribution')}</h2>
       </header>
       <section class="detail-body">
         <table>
           <thead>
             <tr>
-              <th>Title</th>
-              <th>Status</th>
-              <th>Delivery date</th>
+              <th>${this.translate('title')}</th>
+              <th>${this.translate('status')}</th>
+              <th>${this.translate('delivery_date')}</th>
             </tr>
           </thead>
           <tbody>
@@ -489,10 +525,10 @@ class PostNL extends LitElement {
   }
 
   renderShipment(shipment) {
-    let delivery_date = "Unknown";
+    let delivery_date = this.translate('unknown');
     let className = "delivered";
 
-    // Convesion Time
+    // Conversion Time
     if (shipment.delivery_date != null) {
       delivery_date = this.dateConversion(shipment.delivery_date);
     } else if (shipment.planned_date != null) {
@@ -513,6 +549,7 @@ class PostNL extends LitElement {
 
   dateConversion(date) {
     const momentDate = moment(date);
+    momentDate.locale(this._language);
 
     return momentDate.calendar(null, {
       sameDay: '[Today]',
@@ -523,7 +560,13 @@ class PostNL extends LitElement {
 
   timeConversion(date) {
     const momentDate = moment(date);
+    momentDate.locale(this._language);
+
     return momentDate.format(this.time_format);
+  }
+
+  translate(key) {
+    return this._lang[this._language][key];
   }
 
   setConfig(config) {
