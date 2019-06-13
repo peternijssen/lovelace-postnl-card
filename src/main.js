@@ -258,7 +258,7 @@ class PostNL extends LitElement {
       this.time_format = "HH:mm";
     }
 
-    if (this.config.past_days) {
+    if (typeof this.config.past_days !== 'undefined') {
       this.past_days = parseInt(this.config.past_days, 10);
     } else {
       this.past_days = 1;
