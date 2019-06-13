@@ -24,7 +24,7 @@ resources:
 
 ### Installation and tracking with `HACS` _(Recommended)_
 1. Make sure you've the [HACS](https://custom-components.github.io/hacs/) component installed and working
-2. Add a new `Custom Plugin Repository` under `Settings` with the following URL: `https://github.com/peternijssen/lovelace-postnl-card`
+2. Search the card in the Store
 3. Configure Lovelace to load the card:
 
 ```yaml
