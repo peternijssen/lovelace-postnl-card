@@ -1,5 +1,9 @@
-import { LitElement, html, css } from 'lit-element';
+import {
+  LitElement, html, css, unsafeCSS
+} from 'lit-element';
 import moment from 'moment/src/moment';
+import Swiper from 'swiper';
+import swiperStyle from "swiper/dist/css/swiper.min.css";
 
 import 'moment/src/locale/nl';
 
@@ -55,118 +59,126 @@ function renderNotFoundStyles() {
 }
 
 function renderStyles() {
-  return html`
-    <style is="custom-style">
-      ha-card {
-        -webkit-font-smoothing: var(
-          --paper-font-body1_-_-webkit-font-smoothing
-        );
-        font-size: var(--paper-font-body1_-_font-size);
-        font-weight: var(--paper-font-body1_-_font-weight);
-        line-height: var(--paper-font-body1_-_line-height);
-        padding-bottom: 16px;
-      }
-      ha-card.no-header {
-        padding: 16px 0;
-      }
-      .info-body,
-      .detail-body,
-      .img-body {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around;
-        align-items: center;
-      }
-      .info {
-        text-align: center;
-      }
+  return [
+    html`
+      <style is="custom-style">
+            ${unsafeCSS(swiperStyle)}
+      </style>
+        `,
+    html`
+      <style is="custom-style">
+          ha-card {
+            -webkit-font-smoothing: var(
+              --paper-font-body1_-_-webkit-font-smoothing
+            );
+            font-size: var(--paper-font-body1_-_font-size);
+            font-weight: var(--paper-font-body1_-_font-weight);
+            line-height: var(--paper-font-body1_-_line-height);
+            padding-bottom: 16px;
+          }
+          ha-card.no-header {
+            padding: 16px 0;
+          }
+          .info-body,
+          .detail-body,
+          .img-body {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            align-items: center;
+          }
+          .info {
+            text-align: center;
+          }
 
-      .info__icon {
-        color: var(--paper-item-icon-color, #44739e);
-      }
-      .detail-body table {
-        padding: 0px 16px;
-        width: 100%;
-      }
-      .detail-body td {
-        padding: 2px;
-      }
-      .detail-body thead th {
-        text-align: left;
-      }
-      .detail-body tbody tr:nth-child(odd) {
-        background-color: var(--paper-card-background-color);
-      }
-      .detail-body tbody tr:nth-child(even) {
-        background-color: var(--secondary-background-color);
-      }
-      .detail-body tbody td.name a {
-        color: var(--primary-text-color);
-        text-decoration-line: none;
-        font-weight: normal;
-      }
-      .img-body {
-        margin-bottom: 10px;
-      }
-      .img-body img {
-        padding: 5px;
-        background: repeating-linear-gradient(
-          45deg,
-          #B45859,
-          #B45859 10px,
-          #FFFFFF 10px,
-          #FFFFFF 20px,
-          #122F94 20px,
-          #122F94 30px,
-          #FFFFFF 30px,
-          #FFFFFF 40px
-        );
-      }
+          .info__icon {
+            color: var(--paper-item-icon-color, #44739e);
+          }
+          .detail-body table {
+            padding: 0px 16px;
+            width: 100%;
+          }
+          .detail-body td {
+            padding: 2px;
+          }
+          .detail-body thead th {
+            text-align: left;
+          }
+          .detail-body tbody tr:nth-child(odd) {
+            background-color: var(--paper-card-background-color);
+          }
+          .detail-body tbody tr:nth-child(even) {
+            background-color: var(--secondary-background-color);
+          }
+          .detail-body tbody td.name a {
+            color: var(--primary-text-color);
+            text-decoration-line: none;
+            font-weight: normal;
+          }
+          .img-body {
+            margin-bottom: 10px;
+            text-align: center;
+          }
+          .img-body img {
+            padding: 5px;
+            background: repeating-linear-gradient(
+              45deg,
+              #B45859,
+              #B45859 10px,
+              #FFFFFF 10px,
+              #FFFFFF 20px,
+              #122F94 20px,
+              #122F94 30px,
+              #FFFFFF 30px,
+              #FFFFFF 40px
+            );
+          }
 
-      header {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        font-family: var(--paper-font-headline_-_font-family);
-        -webkit-font-smoothing: var(
-          --paper-font-headline_-_-webkit-font-smoothing
-        );
-        font-size: var(--paper-font-headline_-_font-size);
-        font-weight: var(--paper-font-headline_-_font-weight);
-        letter-spacing: var(--paper-font-headline_-_letter-spacing);
-        line-height: var(--paper-font-headline_-_line-height);
-        text-rendering: var(
-          --paper-font-common-expensive-kerning_-_text-rendering
-        );
-        opacity: var(--dark-primary-opacity);
-        padding: 24px
-          16px
-          16px;
-      }
-      .header__icon {
-        margin-right: 8px;
-        color: var(--paper-item-icon-color, #44739e);
-      }
-      .header__title {
-        font-size: var(--thermostat-font-size-title);
-        line-height: var(--thermostat-font-size-title);
-        font-weight: normal;
-        margin: 0;
-        align-self: left;
-      }
+          header {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            font-family: var(--paper-font-headline_-_font-family);
+            -webkit-font-smoothing: var(
+              --paper-font-headline_-_-webkit-font-smoothing
+            );
+            font-size: var(--paper-font-headline_-_font-size);
+            font-weight: var(--paper-font-headline_-_font-weight);
+            letter-spacing: var(--paper-font-headline_-_letter-spacing);
+            line-height: var(--paper-font-headline_-_line-height);
+            text-rendering: var(
+              --paper-font-common-expensive-kerning_-_text-rendering
+            );
+            opacity: var(--dark-primary-opacity);
+            padding: 24px
+              16px
+              16px;
+          }
+          .header__icon {
+            margin-right: 8px;
+            color: var(--paper-item-icon-color, #44739e);
+          }
+          .header__title {
+            font-size: var(--thermostat-font-size-title);
+            line-height: var(--thermostat-font-size-title);
+            font-weight: normal;
+            margin: 0;
+            align-self: left;
+          }
 
-      footer {
-        padding: 16px;
-        color: red;
-      }
-    </style>
-  `;
+          footer {
+            padding: 16px;
+            color: red;
+          }
+      </style>`
+  ];
 }
 
 class PostNL extends LitElement {
   static get properties() {
     return {
       _hass: Object,
+      swiper: Object,
       config: Object,
       deliveryObject: Object,
       distributionObject: Object,
@@ -405,7 +417,19 @@ class PostNL extends LitElement {
 
     return html`
       <section class="img-body">
-        <img src="${this.letters[0].image}&width=400&height=300" />
+        <div class="swiper-container">
+          <div class="swiper-wrapper">
+            ${Object.entries(this.letters).map(([key, letter]) => {
+    if (letter.image == null) return '';
+
+    return html`
+              <div class="swiper-slide">
+                <img src="${letter.image}&width=400&height=300" />
+              </div>
+              `;
+  })}
+          </div>
+        </div>
       </section>
     `;
   }
@@ -577,6 +601,30 @@ class PostNL extends LitElement {
     this.config = {
       ...config,
     };
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    if (this.swiper) {
+      this.swiper.update();
+    } else {
+      this._initialLoad();
+    }
+  }
+
+  updated(changedProperties) {
+    super.updated(changedProperties);
+    if (this._config && this._hass && this.isConnected) {
+      this._initialLoad();
+    } else if (this.swiper) {
+      this.swiper.update();
+    }
+  }
+
+  async _initialLoad() {
+    await this.updateComplete;
+
+    this.swiper = new Swiper(this.shadowRoot.querySelector(".swiper-container"));
   }
 
   getCardSize() {

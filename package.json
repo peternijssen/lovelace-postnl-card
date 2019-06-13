@@ -1,6 +1,6 @@
 {
     "name": "lovelace-postnl",
-    "version": "0.11.0",
+    "version": "0.12.0",
     "description": "Lovelace PostNL card",
     "keywords": [
         "home-assistant",
@@ -18,7 +18,8 @@
     "dependencies": {
         "lit-element": "^2.1.0",
         "lit-html": "^1.0.0",
-        "moment": "^2.24.0"
+        "moment": "^2.24.0",
+        "swiper": "^4.5.0"
     },
     "devDependencies": {
         "@babel/cli": "^7.4.3",
@@ -27,13 +28,17 @@
         "@babel/plugin-proposal-decorators": "^7.3.0",
         "@babel/plugin-transform-template-literals": "^7.2.0",
         "@babel/preset-env": "^7.3.1",
+        "babel-helper-evaluate-path": "^0.5.0",
         "babel-plugin-iife-wrap": "^1.1.0",
         "babel-preset-minify": "^0.5.0",
         "eslint": "^5.16.0",
         "eslint-config-airbnb-base": "^13.1.0",
         "eslint-plugin-import": "2.16.0",
         "rollup": "^1.2.3",
+        "rollup-plugin-babel": "^4.3.2",
+        "rollup-plugin-babel-minify": "^8.0.0",
         "rollup-plugin-node-resolve": "^4.0.1",
+        "rollup-plugin-postcss": "^2.0.3",
         "rollup-plugin-terser": "^4.0.4",
         "rollup-plugin-uglify": "^6.0.2"
     },
