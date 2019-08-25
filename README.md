@@ -24,7 +24,7 @@ resources:
 
 ### Installation and tracking with `HACS` _(Recommended)_
 1. Make sure you've the [HACS](https://custom-components.github.io/hacs/) component installed and working
-2. Add a new `Custom Plugin Repository` under `Settings` with the following URL: `https://github.com/peternijssen/lovelace-postnl-card`
+2. Search for the PostNL card in the store
 3. Configure Lovelace to load the card:
 
 ```yaml
@@ -94,6 +94,9 @@ cards:
 
 ## Inspired by
 * [simple-thermostat](https://github.com/nervetattoo/simple-thermostat)
+* [mini-media-player](https://github.com/kalkih/mini-media-player)
+* [swiper-card](https://github.com/bramkragten/custom-ui)
 
 ## Contributors
 * [Peter Nijssen](https://github.com/peternijssen)
+* [Rob van Uden](https://github.com/robvanuden)

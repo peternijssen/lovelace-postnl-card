@@ -80,8 +80,7 @@ function renderStyles() {
             padding: 16px 0;
           }
           .info-body,
-          .detail-body,
-          .img-body {
+          .detail-body {
             display: flex;
             flex-direction: row;
             justify-content: space-around;
