@@ -7388,7 +7388,7 @@
     nl: {
       unavailable_entities: "De opgegeven entiteiten zijn niet beschikbaar. Controleer je card configuratie",
       unavailable_letters: "Het lijkt er op dat je brieven hebt geconfigureerd in deze card, maar je hebt deze niet binnen de PostNL app geactiveerd. Verwijder de brieven van deze card of activeer ze binnen de PostNL app.",
-      letters: "Brieven2",
+      letters: "Brieven",
       title: "Titel",
       status: "Status",
       delivery_date: "Bezorgdatum",
