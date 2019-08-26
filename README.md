@@ -2,7 +2,7 @@
 
 [![](https://img.shields.io/github/release/peternijssen/lovelace-postnl-card.svg?style=flat-square)](https://github.com/peternijssen/lovelace-postnl-card/releases/latest)
 [![](https://img.shields.io/travis/peternijssen/lovelace-postnl-card.svg?style=flat-square)](https://travis-ci.org/peternijssen/lovelace-postnl-card)
-![GitHub All Releases](https://img.shields.io/github/downloads/peternijssen/lovelace-postnl-card/total.svg)
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
 
 Home Assistant Lovelace card for PostNL.
 
@@ -10,6 +10,13 @@ Home Assistant Lovelace card for PostNL.
 https://community.home-assistant.io/t/lovelace-postnl/112433**
 
 ![Example](https://community-home-assistant-assets.s3.dualstack.us-west-2.amazonaws.com/original/3X/5/2/527bc612e6eb092f1d4887e9d6272c7b4278ec65.png)
+
+## Features
+* Display of letters
+* Carousel of images of letters
+* List of packages enroute to you
+* List of packages submitted by you
+* Contains direct links to the web interface of PostNL
 
 ## Installation
 
