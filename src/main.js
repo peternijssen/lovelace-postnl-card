@@ -35,8 +35,8 @@ const LANG = {
     status: 'Status',
     delivery_date: 'Bezorgdatum',
     enroute: 'Onderweg',
-    delivered: 'Afgeleverd',
-    delivery: 'Ontvangen',
+    delivered: 'Bezorgd',
+    delivery: 'Bezorging',
     distribution: 'Versturen',
     unknown: 'Onbekend',
   }
