@@ -17,6 +17,7 @@ const LANG = {
   en: {
     unavailable_entities: 'The given entities are not available. Please check your card configuration',
     unavailable_letters: 'It seems you have set the letter object, but you haven\'t activated this within PostNL yet. Consider removing the letter object from the card or activate this option in PostNL.',
+    letter: 'Letter',
     letters: 'Letters',
     title: 'Title',
     status: 'Status',
@@ -30,6 +31,7 @@ const LANG = {
   nl: {
     unavailable_entities: 'De opgegeven entiteiten zijn niet beschikbaar. Controleer je card configuratie',
     unavailable_letters: 'Het lijkt er op dat je brieven hebt geconfigureerd in deze card, maar je hebt deze niet binnen de PostNL app geactiveerd. Verwijder de brieven van deze card of activeer ze binnen de PostNL app.',
+    letter: 'Brief',
     letters: 'Brieven',
     title: 'Titel',
     status: 'Status',
@@ -378,7 +380,7 @@ class PostNL extends LitElement {
     return html`
       <div class="info">
         <ha-icon class="info__icon" icon="mdi:email"></ha-icon><br />
-        <span>${this.letters.length} ${this.translate('letters')}</span>
+        <span>${this.letters.length} ${(this.letters.length > 1) ? this.translate('letters') : this.translate('letter')}</span>
       </div>
     `;
   }
