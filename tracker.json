@@ -1,9 +1,9 @@
 {
   "postnl-card": {
-    "version": "0.12.0",
-    "updated_at": "2019-06-13",
+    "version": "0.12.2",
+    "updated_at": "2019-10-12",
     "visit_repo": "https://github.com/peternijssen/lovelace-postnl",
-    "remote_location": "https://github.com/peternijssen/lovelace-postnl/releases/download/0.12.0/postnl-card.js",
+    "remote_location": "https://github.com/peternijssen/lovelace-postnl/releases/download/0.12.2/postnl-card.js",
     "changelog": "https://github.com/peternijssen/lovelace-postnl/releases/latest"
   }
 }
